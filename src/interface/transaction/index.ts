@@ -1,0 +1,126 @@
+import { UserInfo } from "../user";
+import { StoreInfo } from "../store";
+
+export interface TransactionRequest {
+    customerPhone: string,
+    amount: number,
+    tip: number,
+    totalAmount?: number,
+    convenienceFee?: number,
+    transaction?: TransactionResponse
+}
+
+export interface TransactionResponse {
+    LTaxAmount: string,
+    STaxAmount: string,
+    amount_paid: string,
+    authCode: string,
+    batchNo: string,
+    cardHolderName: string,
+    card_type: string,
+    customer: string,
+    date: string,
+    disclaimer: string,
+    emvAID: string,
+    emvAppName: string,
+    emvTC: string,
+    emvTSI: string,
+    emvTVR: string,
+    expDate: string,
+    extData: string,
+    fee: string,
+    iPOSToken: string,
+    invoice_no: string,
+    last_4_digits: string,
+    mask_pan: string,
+    merchant: string,
+    pinMode: string,
+    refId: string,
+    respCode: string,
+    respMsg: string,
+    rrn: string,
+    sign: string,
+    status: string,
+    time: string,
+    tipAmount: string,
+    tipLine: string,
+    totalAmount: string,
+    transId: string,
+    transaction_id: string,
+    transaction_mode: string,
+    transaction_title: string,
+    transaction_type: number,
+    terminal?: string;
+}
+
+export interface TransactionLogResponse {
+    _id: string,
+    amount: number,
+}
+
+export type FeeInfo = {
+    value: number,
+    unit: string
+}
+export interface TransactionItem {
+    _id: string;
+    created_at: Date;
+    transaction_id: string;
+    customer_name: string;
+    phone: string;
+    amount: number;
+    fee: number;
+    net_amount: number;
+    isRefunded: boolean;
+    card_number: string;
+    card_brand: number;
+    card_type: number;
+    response_code: string;
+    tip: number;
+    convenience_fee: number;
+    status: number;
+    type: number;
+    store?: StoreInfo;
+    user?: UserInfo;
+};
+// {
+//     LTaxAmount: 0.00,
+//     STaxAmount: 0.00,
+//     amount_paid: 10.00,
+//     authCode: VTLMC1,
+//     batchNo: 863,
+//     cardHolderName: AND/SKY FINANCIAL,
+//     card_type: MASTERCARD,
+//     customer: <BR/><B><C>Sky Financial Test Merchant</C></B><B><C>7611 phoenix peak street </C></B><B><C>LAS VEGAS, NV, 89166</C></B><B><C>630-878-0838</C></B><BR/><IMG>\\</IMG><BR/><L>2025/03/05</L><R>10:21:56</R><BR/><BR/><B><C>SALE</C></B><BR/><BR/><L>Trans Number:</L><R>1</R><BR/><L>Batch #:</L><R>863</R><BR/><BR/><L>MASTERCARD</L><R>Chip</R><BR/><L>******6935</L><R>**/**</R><BR/><L>Reference Id:</L><R></R><BR/><BR/><L>Base Amount:</L><R>$10.00</R><BR/><L>Tip:</L><R>$1.00</R><BR/><L>Total:</L><R>$11.00</R><BR/><BR/><L>Resp:</L><R>APPROVED</R><BR/><L>Code:</L><R>VTLMC1</R><BR/><L>Ref #:</L><R>506418502590</R><BR/><L>TransId #:</L><R>1212MCC111250</R><BR/><BR/><L>App Name:</L><R>Debit Mastercard</R><BR/><L>AID:</L><R>A0000000041010</R><BR/><L>TVR:</L><R>8000008000</R><BR/><L>TSI:</L><R>6800</R><BR/><BR/><B><C>Customer Copy</C></B><BR/>,
+//     date: 2025-03-05,
+//     disclaimer: Cardholder acknowledges receipt of goods and obligations set forth by the cardholder's agreement with issuer.,
+//     emvAID: A0000000041010,
+//     emvAppName: Debit Mastercard,
+//     emvTC: ,
+//     emvTSI: 6800,
+//     emvTVR: 8000008000,
+//     expDate: 0329,
+//     extData: {\dueAmnt\:\0.00\,\approvedAmnt\:\\,\isPartialApprovalTxn\:false,\voided\:\false\},
+//     fee: 0.00,
+//     iPOSToken: 08A5B4F9EAFF0B6EC070B5F6CE44C21A8C3B327163E79FF0,
+//     invoice_no: 1,
+//     last_4_digits: 6935,
+//     mask_pan: 5348606935,
+//     merchant: <BR/><B><C>Sky Financial Test Merchant</C></B><B><C>7611 phoenix peak street </C></B><B><C>LAS VEGAS, NV, 89166</C></B><B><C>630-878-0838</C></B><BR/><IMG>\\</IMG><BR/><L>2025/03/05</L><R>10:21:56</R><BR/><BR/><B><C>SALE</C></B><BR/><BR/><L>Trans Number:</L><R>1</R><BR/><L>Batch #:</L><R>863</R><BR/><BR/><L>MASTERCARD</L><R>Chip</R><BR/><L>******6935</L><R>**/**</R><BR/><L>Reference Id:</L><R></R><BR/><BR/><L>Base Amount:</L><R>$10.00</R><BR/><L>Tip:</L><R>$1.00</R><BR/><L>Total:</L><R>$11.00</R><BR/><BR/><L>Resp:</L><R>APPROVED</R><BR/><L>Code:</L><R>VTLMC1</R><BR/><L>Ref #:</L><R>506418502590</R><BR/><L>TransId #:</L><R>1212MCC111250</R><BR/><BR/><L>App Name:</L><R>Debit Mastercard</R><BR/><L>AID:</L><R>A0000000041010</R><BR/><L>TVR:</L><R>8000008000</R><BR/><L>TSI:</L><R>6800</R><BR/><C>Cardholder acknowledges</C><BR/><C>receipt of goods and</C><BR/><C>obligations set forth</C><BR/><C>by the cardholder&apos;s</C><BR/><C>agreement with issuer.</C><BR/><BR/><B><C>AND/SKY FINANCIAL</C></B><BR/><BR/><B><C>Merchant Copy</C></B><BR/>,
+//     pinMode: 0,
+//     refId: 1741198901836,
+//     respCode: 00,
+//     respMsg: APPROVAL VTLMC1 ,
+//     rrn: 506418502590,
+//     sign: ,
+//     status: Approved,
+//     time: 10:21:56,
+//     tipAmount: 1.00,
+//     tipLine: 0,
+//     totalAmount: 11.00,
+//     transId: 000001,
+//     transaction_id: 000001,
+//     transaction_mode: 2,
+//     transaction_title: SALE,
+//     transaction_type: 1
+// }

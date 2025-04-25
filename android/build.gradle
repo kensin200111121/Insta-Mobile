@@ -1,0 +1,35 @@
+buildscript {
+    ext {
+        buildToolsVersion = "35.0.0"
+        minSdkVersion = 23
+        compileSdkVersion = 35
+        targetSdkVersion = 34
+        ndkVersion = "27.1.12297006"
+        kotlinVersion = "2.0.21"
+    }
+    repositories {
+        google()
+        mavenCentral()
+    }
+    dependencies {
+        classpath("com.android.tools.build:gradle")
+        classpath("com.facebook.react:react-native-gradle-plugin")
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin")
+    }
+}
+
+apply plugin: "com.facebook.react.rootproject"
+
+allprojects {
+    repositories {
+        jcenter()
+        flatDir { dirs 'libs' }
+        maven {
+            url "s3://denovo-android.s3.amazonaws.com"
+            credentials(AwsCredentials) {
+                accessKey "AKIA26XMFQBITA36GRDR"
+                secretKey "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"
+            }
+        }
+    }
+}
