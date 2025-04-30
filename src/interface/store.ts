@@ -35,6 +35,8 @@ export interface StoreInfo {
   percentageProcessingFeeAmount: number;
   fixedProcessingFeeMode: boolean;
   fixedProcessingFeeAmount: number;
+  noConvenienceFee: boolean;
+  noTip: boolean;
   mtd_volume?: string;
   avg_daily_volume?: string;
   avg_ticket?: number;

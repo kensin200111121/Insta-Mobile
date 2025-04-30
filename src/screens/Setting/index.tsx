@@ -97,29 +97,41 @@ const SettingScreen = () => {
             </View>
             <Text style={styles.subtitle}>Tip Settings:</Text>
             <View style={styles.tip}>
-              <TouchableOpacity style={styles.tipItem}>
+              { storeInfo?.noTip ? 
+                <TouchableOpacity style={styles.tipItem}>
                 <Text style={styles.tipItemText}>
-                  {storeInfo?.tipAmounts[0] ?? 0}
-                  {storeInfo?.tipMode === 'percentage' ? '%' : '$'}
+                  No Tip
                 </Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.tipItem}>
-                <Text style={styles.tipItemText}>
-                  {storeInfo?.tipAmounts[1] ?? 0}
-                  {storeInfo?.tipMode === 'percentage' ? '%' : '$'}
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.tipItem}>
-                <Text style={styles.tipItemText}>
-                  {storeInfo?.tipAmounts[2] ?? 0}
-                  {storeInfo?.tipMode === 'percentage' ? '%' : '$'}
-                </Text>
-              </TouchableOpacity>
+              : <>
+                <TouchableOpacity style={styles.tipItem}>
+                  <Text style={styles.tipItemText}>
+                    {storeInfo?.tipAmounts[0] ?? 0}
+                    {storeInfo?.tipMode === 'percentage' ? '%' : '$'}
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.tipItem}>
+                  <Text style={styles.tipItemText}>
+                    {storeInfo?.tipAmounts[1] ?? 0}
+                    {storeInfo?.tipMode === 'percentage' ? '%' : '$'}
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.tipItem}>
+                  <Text style={styles.tipItemText}>
+                    {storeInfo?.tipAmounts[2] ?? 0}
+                    {storeInfo?.tipMode === 'percentage' ? '%' : '$'}
+                  </Text>
+                </TouchableOpacity>
+              </>
+              }
             </View>
             <Text style={styles.subtitle}>Convenience Fee:</Text>
             <View style={styles.tip}>
               <TouchableOpacity style={styles.tipItem}>
                 <Text style={styles.tipItemText}>
+                  {
+                    (storeInfo?.noConvenienceFee && 'No Convenience Fee')
+                  }
                   {
                     (storeInfo?.percentageFeeMode ? storeInfo?.percentageFeeAmount + '%' : '')
                   }
