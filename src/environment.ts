@@ -19,6 +19,6 @@ const ENVIRONMENTS: Record<string, EnvironmentType> = {
     },
 }
 
-const ENVIRONMENT: EnvironmentType = ENVIRONMENTS.production;
+const ENVIRONMENT: EnvironmentType = ENVIRONMENTS.staging;
 
 export default ENVIRONMENT;
