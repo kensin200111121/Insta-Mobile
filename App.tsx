@@ -84,7 +84,7 @@ const Background = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#30260B',
+    backgroundColor: '#000',
   },
   bgImage: {
     position: 'absolute',

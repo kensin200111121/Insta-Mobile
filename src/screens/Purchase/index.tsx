@@ -1,4 +1,4 @@
-import React, {useMemo, useState} from 'react';
+import React, {useMemo, useState, useRef} from 'react';
 import {View, StyleSheet, ScrollView, TouchableOpacity} from 'react-native';
 import {useTheme, Text} from 'react-native-paper';
 import {useLayoutContext} from '../../contexts/layout.context';
@@ -8,12 +8,15 @@ import ApprovedStep from './ApprovedStep';
 import TipPrompt from './TipPrompt';
 import Header from '../../layout/header';
 import { TransactionRequest } from '../../interface/transaction';
+import { useAuthContext } from '../../contexts/auth.context';
+import WaitingDialog, { WaitingDialogMethod } from './WaitingDialog';
 
 const StepComponents = [InputStep, TipPrompt, ConfirmationStep, ApprovedStep];
 const StepTitle = ['PURCHASE CREDITS', '', 'USE CREDITS', '']
 
 const Purchase = () => {
   const styles = useStyles();
+  const { storeInfo: { noTip } } = useAuthContext();
   const [activeStep, setActiveStep] = useState(0);
   const StepComponent = useMemo(
     () => StepComponents[activeStep] || ConfirmationStep,
@@ -24,20 +27,55 @@ const Purchase = () => {
     amount: 0,
     tip: 0
   });
+  const dialogRef = useRef<WaitingDialogMethod>(null);
 
   const onMoveStep = (isNext = true, _data?: TransactionRequest) => {
     _data && setData(_data);
+    if (isNext) {
+      if (activeStep === 0) {
+        if (noTip) {
+          // show the breakdown dialog
+          showBreakdownDialog(_data);
+          return;
+        } else {
+          setActiveStep(activeStep + (isNext ? 1 : -1));
+          return;
+        }
+      }
+    }
     setActiveStep(activeStep + (isNext ? 1 : -1));
+  };
+
+  const showBreakdownDialog = (data: TransactionRequest) => {
+    dialogRef.current?.open({
+      customerPhone: data.customerPhone,
+      amount: data.amount,
+      tip: 0,
+    });
+  };
+
+  const onPurchaseHandle = (_data: any) => {
+    if (!_data) {
+      return;
+    }
+    setData({
+      customerPhone: _data.customerPhone,
+      amount: _data.amount,
+      tip: 0,
+      ..._data
+    });
+    setActiveStep(activeStep + 2);
   };
 
   return (
     <>
       <Header title={StepTitle[activeStep]} isCenterTitle hasTerm={activeStep === 1} />
-      <ScrollView contentContainerStyle={{flex: 1, paddingVertical: 12,}}>
+      <ScrollView contentContainerStyle={{flex: 1, paddingVertical: 12}}>
         <View style={styles.stepContainer}>
           <StepComponent onMoveStep={onMoveStep} data={data} />
         </View>
       </ScrollView>
+      <WaitingDialog ref={dialogRef} onClose={onPurchaseHandle} />
     </>
   );
 };
@@ -78,11 +116,12 @@ const useStyles = () => {
     },
     stepContainer: {
       alignItems: 'center',
-      paddingHorizontal: isPortrait ? 12 : 80,
+      paddingHorizontal: 12,
       width: '100%',
       maxWidth: 600,
       marginHorizontal: 'auto',
-      marginVertical: 'auto'
+      marginVertical: 'auto',
+      flex: 1
     },
   });
 };

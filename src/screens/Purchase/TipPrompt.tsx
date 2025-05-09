@@ -65,7 +65,7 @@ const TipPrompt: React.FC<StepComponentProps> = ({ data, onMoveStep }) => {
   };
 
   return (
-    <>
+    <View style={styles.container}>
       <View style={pageStyles.backContainer}>
         <TouchableOpacity onPress={() => onMoveStep(false)}>
           <Icon
@@ -97,7 +97,7 @@ const TipPrompt: React.FC<StepComponentProps> = ({ data, onMoveStep }) => {
       </View>
       <CustomTipDialog ref={customTipDialogRef} onClose={onInputCustomTip} />
       <WaitingDialog ref={dialogRef} onClose={onPurchaseHandle} />
-    </>
+    </View>
   );
 };
 

@@ -5,6 +5,8 @@ import { useAuthContext } from '../../contexts/auth.context';
 import { TransactionRequest, TransactionResponse } from '../../interface/transaction';
 import { ceilTo2Decimals, formatDisplayNumber } from '../../utils/format';
 import AlertDialog, { AlertDialogMethod } from '../../components/AlertDialog';
+import useApi from '../../hooks/useApi';
+import { saveLog } from '../../api/auth.api';
 
 const logoImage = require('../../../assets/icons/logo.png');
 
@@ -18,7 +20,10 @@ export type WaitingDialogProps = {
     onClose: (_: any) => void
 }
 
-const calculateFeeAmount = (total: number, isFixed: boolean, fixedAmount: number, isPercentage: boolean, percentageAmount: number) => {
+const calculateFeeAmount = (noFee: boolean, total: number, isFixed: boolean, fixedAmount: number, isPercentage: boolean, percentageAmount: number) => {
+    if (noFee) {
+        return 0;
+    }
     const fixedFee = isFixed ? fixedAmount || 0 : 0;
     const percentageFee = isPercentage ? total * (percentageAmount || 0) / 100 : 0;
     return ceilTo2Decimals(fixedFee + percentageFee);
@@ -28,7 +33,7 @@ const WaitingDialog = React.forwardRef<WaitingDialogMethod, WaitingDialogProps>(
     useImperativeHandle(ref, () => {
         return {
             open: (_data) => {
-                const _convenienceFee = calculateFeeAmount(parseFloat((_data.amount || 0) + '') + parseFloat((_data.tip || 0) + ''), fixedFeeMode, fixedFeeAmount, percentageFeeMode, percentageFeeAmount);
+                const _convenienceFee = calculateFeeAmount(noConvenienceFee, parseFloat((_data.amount || 0) + '') + parseFloat((_data.tip || 0) + ''), fixedFeeMode, fixedFeeAmount, percentageFeeMode, percentageFeeAmount);
                 const _totalAmount = parseFloat((_data.amount || 0) + '') + parseFloat((_data.tip || 0) + '') + parseFloat((_convenienceFee || 0) + '');
                 const data = {
                     ..._data,
@@ -40,19 +45,23 @@ const WaitingDialog = React.forwardRef<WaitingDialogMethod, WaitingDialogProps>(
                 showDialog();
                 timer.current = setTimeout(() => {
                     purchase(data as TransactionRequest);
-                }, 5000);
+                }, 3000);
             },
         };
     }, []);
 
-    const { storeInfo: { fixedFeeAmount, fixedFeeMode, percentageFeeMode, percentageFeeAmount } } = useAuthContext();
+    const { storeInfo: { fixedFeeAmount, fixedFeeMode, percentageFeeMode, percentageFeeAmount, noTip, noConvenienceFee } } = useAuthContext();
+    const request = useApi();
     const [visible, setVisible] = React.useState(false);
     const [data, setData] = useState<TransactionRequest>();
     const [totalAmount, setTotalAmount] = useState(0);
+    const [isSaving, setIsSaving] = useState(false);
     const tpn = useRef('');
     
     const timer = useRef<any>(); // remove later
     const alertDialogRef = useRef<AlertDialogMethod>(null);
+
+    const saveTransactionResult = (data: TransactionRequest) => request('post', '/transaction/create', data);
 
     useEffect(() => {
         let data = { applicationType: "DVPAYLITE" };
@@ -88,13 +97,33 @@ const WaitingDialog = React.forwardRef<WaitingDialogMethod, WaitingDialogProps>(
         if (_data.type === 'onTransactionSuccess') {
             try {
                 const response = JSON.parse(_data?.data) as TransactionResponse;
-                clearData();
-                onClose({
+                const resultData = {
                     ...data,
                     transaction: {
                         ...response,
                         terminal: tpn.current
                     },
+                };                
+                if (!data?.customerPhone || !parseFloat(data.amount + '') || !parseFloat(data.totalAmount + '')) {
+                    saveLog({ data: JSON.stringify({ type: 'invalid_hook', ...resultData }) });
+                    return;
+                }
+                timer.current && clearTimeout(timer.current);
+                timer.current = undefined;
+                
+                saveTransactionResult(resultData as TransactionRequest).then((res) => {
+                    if (res.status) {
+                      setVisible(false);
+                      onClose(resultData);
+                      return;
+                    } else {
+                        alertDialogRef?.current?.open({
+                            title: 'Warning ',
+                            content: `Saving transaction (${resultData?.transaction?.refId}:${resultData?.transaction?.transId}) is failed because of this error ${res.message}. Contact to support team with this message.`,
+                        })
+                        setVisible(false);
+                        onClose(resultData);
+                    }
                 });
             } catch (err) {
                 console.log('error', err);
@@ -133,7 +162,7 @@ const WaitingDialog = React.forwardRef<WaitingDialogMethod, WaitingDialogProps>(
         if (!data) {
             return;
         }
-        const _convenienceFee = calculateFeeAmount(parseFloat((data.amount || 0) + '') + parseFloat((data.tip || 0) + ''), fixedFeeMode, fixedFeeAmount, percentageFeeMode, percentageFeeAmount);
+        const _convenienceFee = calculateFeeAmount(noConvenienceFee, parseFloat((data.amount || 0) + '') + parseFloat((data.tip || 0) + ''), fixedFeeMode, fixedFeeAmount, percentageFeeMode, percentageFeeAmount);
         const _totalAmount = parseFloat((data.amount || 0) + '') + parseFloat((data.tip || 0) + '') + parseFloat((_convenienceFee || 0) + '');
         purchase(
             {
@@ -161,17 +190,25 @@ const WaitingDialog = React.forwardRef<WaitingDialogMethod, WaitingDialogProps>(
                                     <Text style={styles.infoTitle}>Amount</Text>
                                     <Text style={styles.infoValue}>${formatDisplayNumber((data?.amount || 0) + '')}</Text>
                                 </View>
-                                <View style={styles.info}>
-                                    <Text style={styles.infoTitle}>Tip</Text>
-                                    <Text style={styles.infoValue}>${formatDisplayNumber((data?.tip || 0) + '')}</Text>
-                                </View>
-                                <View style={styles.info}>
-                                    <Text style={styles.infoTitle}>Convenience Fee</Text>
-                                    <Text style={styles.infoValue}>${formatDisplayNumber((data?.convenienceFee || 0) + '')}</Text>
-                                </View>
+                                {
+                                    noTip ? null : (
+                                        <View style={styles.info}>
+                                            <Text style={styles.infoTitle}>Tip</Text>
+                                            <Text style={styles.infoValue}>${formatDisplayNumber((data?.tip || 0) + '')}</Text>
+                                        </View>
+                                    )
+                                }
+                                {
+                                    noConvenienceFee ? null : (
+                                        <View style={styles.info}>
+                                            <Text style={styles.infoTitle}>Convenience Fee</Text>
+                                            <Text style={styles.infoValue}>${formatDisplayNumber((data?.convenienceFee || 0) + '')}</Text>
+                                        </View>
+                                    )
+                                }
                                 <View style={styles.info}>
                                     <Text style={styles.infoTitle}>Grand Total</Text>
-                                    <Text style={styles.infoValue}>${formatDisplayNumber((totalAmount || 0) + '')}</Text>
+                                    <Text style={styles.infoValue}>${formatDisplayNumber((totalAmount || 0) + '', false)}</Text>
                                 </View>
                             </View>
                         </Dialog.Content>

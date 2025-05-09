@@ -4,7 +4,7 @@ import type { AxiosRequestConfig, Method } from 'axios';
 import ENVIRONMENT from '../environment';
 
 const useStoreApi = () => {
-    const { storeToken, openTokenOverlay } = useAuthContext();
+    const { storeToken, openTokenOverlay, updateStoreToken  } = useAuthContext();
     
   // const prefix = '/api'
   const prefix = `${ENVIRONMENT.SERVER_DOMAIN}app`;
@@ -51,17 +51,19 @@ const useStoreApi = () => {
       return config?.data;
     },
     error => {
-
+      let errorMessage = error?.response?.data?.message || 'API ERROR';
       if (error?.response?.status === 401) {
+        if (errorMessage.startsWith('store_')) {
+          // this means the store invalid
+          updateStoreToken('');
+          return;
+        }
         openTokenOverlay()
       }
-      // if needs to navigate to login page when request exception
-      // history.replace('/login');
-      let errorMessage = 'API ERROR';
   
       if (error?.message?.includes('Network Error')) {
         errorMessage = 'Network Error! Please check your network connection.';
-      } else {
+      } else if (errorMessage === 'API ERROR') {
         errorMessage = error?.message;
       }
   

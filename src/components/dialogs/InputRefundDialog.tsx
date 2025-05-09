@@ -9,14 +9,14 @@ import SelectTransaction from '../SelectTransaction';
 
 const InputRefund: React.FC<DialogContentProps<TransactionItem[], ConfirmRefundFormData>> = ({ data, onClose }) => {
   const [ isShowPartialAmount, setShowPartialAmount ] = useState(false);
-  const [ transaction_id, setTransactionId ] = useState('');
+  const [ transactionInfo, setTransactionInfo ] = useState<TransactionItem | null>();
   const [ refundAmount, setRefundAmount ] = useState('0');
   const [ transactionAmount, setTransactionAmount ] = useState(0);
   const [ warning, setWarning ] = useState({transaction_id: '', refundAmount: ''});
 
   useEffect(() => {
     setShowPartialAmount(false);
-    setTransactionId('');
+    setTransactionInfo(null);
     setTransactionAmount(0);
     setRefundAmount('0');
     setWarning({transaction_id: '', refundAmount: ''});
@@ -29,23 +29,23 @@ const InputRefund: React.FC<DialogContentProps<TransactionItem[], ConfirmRefundF
   }, [isShowPartialAmount]);
 
   const handleRefund = () => {
-    if(transaction_id == '' || Number.isNaN(Number(refundAmount)) || Number(refundAmount) > transactionAmount || Number(refundAmount) < 0 ){
+    if(!transactionInfo || transactionInfo?._id == '' || Number.isNaN(Number(refundAmount)) || Number(refundAmount) > transactionAmount || Number(refundAmount) < 0 ){
       setWarning({
-        transaction_id: transaction_id == '' ? 'Transaction ID is invalid.' : '',
+        transaction_id: transactionInfo?.transaction_id == '' ? 'Transaction ID is invalid.' : '',
         refundAmount: Number.isNaN(Number(refundAmount)) || Number(refundAmount) > transactionAmount || Number(refundAmount) < 0 ? 'Refund Amount is invalid.' : ''
       });
     }else{
-      onClose({refundAmount: Number(refundAmount), transactionAmount, transaction_id});
+      onClose({refundAmount: Number(refundAmount), transactionAmount, transactionInfo});
     }
   }
 
   const handleSelect = (item: TransactionItem|undefined) => {
     if(item){
-      setTransactionId(item.transaction_id)
+      setTransactionInfo(item)
       setRefundAmount(item.amount.toFixed(2));
       setTransactionAmount(item.amount);
     }else{
-      setTransactionId('');
+      setTransactionInfo(null);
       setTransactionAmount(0);
       setRefundAmount('0');
     }

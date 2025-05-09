@@ -12,10 +12,14 @@ import ConfirmRefundDialog, { ConfirmRefundFormData } from '../../components/dia
 import { DialogMethod } from '../../components/WithDialog';
 import { TransactionItem } from '../../interface/transaction';
 import { useAuthContext } from '../../contexts/auth.context';
+import { useLayoutContext } from '../../contexts/layout.context';
+import { generateRefundErrorMessage } from '../../utils/messages';
 
 const RefundScreen = () => {
   const { userToken, openTokenOverlay, hasOverlay } = useAuthContext();
   const request = useApi();
+  const { showError } = useLayoutContext();
+  
   const [dataSource, setDataSource] = useState<RefundItem[]>([]);
   const [transactions, setTransactions] = useState<TransactionItem[]>([]);
   const [searchKey, setSearchKey] = useState<string>('');
@@ -63,21 +67,24 @@ const RefundScreen = () => {
 
   const handleConfirmRefundClose = (data?: ConfirmRefundFormData) => {
     if(data){
-      const index = transactions.findIndex(t => t.transaction_id == data.transaction_id);
+      const index = transactions.findIndex(t => t._id == data.transactionInfo._id);
 
       if (index >= 0) {
         const transaction: TransactionItem = transactions[index];
         const refundData: RefundCreateRequest = {
           transaction_id: transaction._id,
           amount: data.refundAmount,
-        };  
+        };
 
         CreateRefundAsync(refundData).then((res) => {
           if(res.status){
+            showError('Refund successful!', '');
             dataSource.push(res.result);
             setDataSource([...dataSource]);
             transactions[index].isRefunded = true;
             setTransactions([...transactions]);
+          } else if (res.message) {
+            showError('Refund failed', generateRefundErrorMessage(res.message) );
           }
         });
       }

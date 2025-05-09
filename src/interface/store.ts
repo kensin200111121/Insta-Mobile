@@ -23,6 +23,8 @@ export interface StoreInfo {
     routingNumber: string;
     accountNumber: string;
   };
+  noTip: boolean,
+  noConvenienceFee: boolean,
   isAutoBatchTime: boolean;
   cryptoType: string;
   tipMode: 'percentage' | 'fixed';

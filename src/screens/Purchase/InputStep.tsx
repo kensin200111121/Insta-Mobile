@@ -4,16 +4,16 @@ import {Text, Button, Icon} from 'react-native-paper';
 import styles from './style';
 import {useLayoutContext} from '../../contexts/layout.context';
 import {StepComponentProps} from './type';
-import { useRoute } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import NumericPad from 'react-native-numeric-pad';
 import { NumpadRef } from '../../interface/numberpad';
 import AlertDialog, { AlertDialogMethod } from '../../components/AlertDialog';
 import { generateNumberPadProps } from '../../constants/numpad';
-import { formatNumber } from '../../utils/format';
+import { formatInputNumber } from '../../utils/format';
 import { useAuthContext } from '../../contexts/auth.context';
 
 const InputStep: React.FC<StepComponentProps> = ({onMoveStep}) => {
-  const { updateUserToken } = useAuthContext();
+  const navigation = useNavigation();
   const pageStyles = usePageStyles();
   const route = useRoute();
   const [amount, setAmount] = useState('')
@@ -29,6 +29,13 @@ const InputStep: React.FC<StepComponentProps> = ({onMoveStep}) => {
       });
       return;
     }
+    if (parseFloat(amount + '') < 1) {
+      alertDialogRef.current?.open({
+        title: 'INVALID AMOUNT',
+        content: `You should input at least $1.00. Please input the valid amount bigger than 1.00.`
+      });
+      return;
+    }
     onMoveStep(true, {
       customerPhone: phone,
       amount: parseFloat(parseFloat(amount).toFixed(2))
@@ -36,34 +43,34 @@ const InputStep: React.FC<StepComponentProps> = ({onMoveStep}) => {
   };
 
   return (
-    <>
-      <View style={{width: '100%'}}>
-        <TouchableOpacity onPress={() => updateUserToken('')}>
+    <View style={styles.container}>
+      <View style={pageStyles.topArea}>
+        <TouchableOpacity style={{ width: 30, marginBottom: 12 }} onPress={() => navigation.goBack()}>
           <Icon
             source='arrow-left'
             color='white'
             size={30}
           />
         </TouchableOpacity>
+        <View style={pageStyles.inputArea}>
+          {
+            amount ? 
+            <>
+              <Text style={pageStyles.inputText}>$</Text>
+              <TextInput
+                style={pageStyles.inputText}
+                showSoftInputOnFocus={false}
+                autoFocus={true}
+                editable={false}
+                numberOfLines={1}
+                value={formatInputNumber(amount)}
+              /> 
+            </>          
+            : <Text style={pageStyles.inputText}>$0</Text>
+          }        
+        </View>
       </View>
-      <View style={pageStyles.inputArea}>
-        {
-          amount ? 
-          <>
-            <Text style={pageStyles.inputText}>$</Text>
-            <TextInput
-              style={pageStyles.inputText}
-              showSoftInputOnFocus={false}
-              autoFocus={true}
-              editable={false}
-              numberOfLines={1}
-              value={formatNumber(amount)}
-            /> 
-          </>          
-          : <Text style={pageStyles.inputText}>$0</Text>
-        }
-        
-      </View>
+      
       <View style={pageStyles.numberPadArea}>      
         <NumericPad
           ref={numpadRef}
@@ -71,14 +78,14 @@ const InputStep: React.FC<StepComponentProps> = ({onMoveStep}) => {
           onValueChange={value => setAmount(value)}
           allowDecimal={true}
           onRightBottomButtonPress={() => {numpadRef.current?.clear()}}
-          {...generateNumberPadProps(200)}
+          {...generateNumberPadProps(210)}
         />
       </View>
       <Button style={styles.button} labelStyle={styles.buttonLabel} mode="contained" textColor="white" onPress={onCreateTransaction}>
         Purchase
       </Button>
       <AlertDialog ref={alertDialogRef} onClose={() => {}} />
-    </>
+    </View>
   );
 };
 
@@ -103,18 +110,25 @@ const usePageStyles = () => {
       fontSize: 24,
       fontWeight: '500',
     },
+    topArea: {
+      width: '100%',
+      flexDirection: 'row',
+      justifyContent: 'center',
+      alignItems: 'center',
+      paddingLeft: 20,
+      paddingRight: 40,
+    },
     inputArea: {
       width: '100%',
       height: 70,
-      justifyContent: 'center',
-      marginTop: isPortrait ? 0 : 24,
-      alignItems: 'center',
       flexDirection: 'row',
+      justifyContent: 'center',
+      alignItems: 'center',
     },
     inputText: {
+      color: 'white',
       textAlign: 'center',
       fontSize: isPortrait ? 46 : 50,
-      color: 'white',
       lineHeight: isPortrait ? 46 : 50,
       letterSpacing: 0
     },

@@ -4,7 +4,7 @@ import { Button, Dialog, Portal, PaperProvider, Text, TextInput } from 'react-na
 import NumericPad from 'react-native-numeric-pad';
 import { generateNumberPadProps } from '../../constants/numpad';
 import { NumpadRef } from '../../interface/numberpad';
-import { formatNumber } from '../../utils/format';
+import { formatInputNumber } from '../../utils/format';
 import { SvgXml } from 'react-native-svg';
 import { closeIcon } from '../../../assets/svg/close';
 import styles from './style';
@@ -64,7 +64,7 @@ const CustomTipDialog = React.forwardRef<CustomTipDialogMethod, CustomTipDialogP
                             showSoftInputOnFocus={false}
                             autoFocus={true}
                             editable={false}
-                            value={'$' + formatNumber(amount)}
+                            value={'$' + formatInputNumber(amount)}
                             numberOfLines={1}
                             style={{ height: 60, fontSize: 24, textAlign: 'center', marginHorizontal: 8, marginVertical: 15}}
                         />

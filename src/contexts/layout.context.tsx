@@ -1,12 +1,21 @@
-import React, {PropsWithChildren, useContext, useEffect, useState} from 'react';
+import React, {PropsWithChildren, useContext, useEffect, useRef, useState} from 'react';
 import { Dimensions } from 'react-native';
+import { Snackbar } from 'react-native-paper';
+import AlertDialog, { AlertDialogMethod } from '../components/AlertDialog';
 
 const { width, height } = Dimensions.get('window');
+
+type LayoutContextInfo = {
+  isPortrait: boolean;
+  width: number,
+  height: number,
+}
 
 type LayoutContextType = {
   isPortrait: boolean;
   width: number,
-  height: number
+  height: number,
+  showError: (_: string, __: string) => void
 };
 
 export const LayoutContext = React.createContext<LayoutContextType | undefined>(
@@ -16,11 +25,15 @@ export const LayoutContext = React.createContext<LayoutContextType | undefined>(
 export const LayoutProvider: React.FC<PropsWithChildren> = ({
   children,
 }: PropsWithChildren) => {
-  const [info, setInfo] = useState<LayoutContextType>({
+  const [info, setInfo] = useState<LayoutContextInfo>({
     isPortrait: width > height ? false : true,
     width,
     height,
   });
+  const alertDialogRef = useRef<AlertDialogMethod>(null);
+  const showError = (title: string, msg: string) => {
+    alertDialogRef.current?.open({ title, content: msg });
+  }
 
   useEffect(() => {
     const subscription = Dimensions.addEventListener('change', ({window}) => {
@@ -37,8 +50,9 @@ export const LayoutProvider: React.FC<PropsWithChildren> = ({
   }, []);
 
   return (
-    <LayoutContext.Provider value={{ ...info }}>
+    <LayoutContext.Provider value={{ ...info, showError }}>
       {children}
+      <AlertDialog ref={alertDialogRef} onClose={() => {}} />
     </LayoutContext.Provider>
   );
 };

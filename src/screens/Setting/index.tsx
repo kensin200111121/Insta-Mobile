@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { ScrollView, StyleSheet, View, Text, TextInput, TouchableOpacity } from 'react-native';
 import Header from '../../layout/header';
 import { useAuthContext } from '../../contexts/auth.context';
+import { getVersion } from 'react-native-device-info';
 
 const SettingScreen = () => {
   const { storeInfo, userToken, openTokenOverlay } = useAuthContext();
@@ -19,7 +20,10 @@ const SettingScreen = () => {
       <ScrollView>
         <View style={styles.container}>
           <View style={styles.content}>
-            <Text style={styles.title}>Settings</Text>
+            <View style={styles.titleRow}>
+              <Text style={styles.title}>Settings</Text>
+              <Text>Version: {getVersion()}</Text>
+            </View>
             <Text style={styles.subtitle}>Location Information:</Text>
             <View style={styles.location}>
             <View style={styles.locationItem}>
@@ -217,6 +221,10 @@ const styles = StyleSheet.create({
     padding: 20,
     paddingTop: 30,
     paddingBottom: 0
+  },
+  titleRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between'
   },
   title: {
     fontSize: 18,

@@ -17,6 +17,9 @@ import { useAuthContext } from '../../contexts/auth.context';
 import GradientMark from '../../components/GradientMark';
 import { Icon, MD3Colors } from 'react-native-paper'
 import { formatDisplayNumber } from '../../utils/format';
+import generateRefundReceiptText from '../../utils/print';
+import { useLayoutContext } from '../../contexts/layout.context';
+import { generateRefundErrorMessage } from '../../utils/messages';
 const {DejavooPaymentModule} = NativeModules;
 
 const visaCardImage = require('../../../assets/card/card_VISA.png');
@@ -33,7 +36,8 @@ const IMAGES: Record<string, any> = {
 
 
 const TransactionScreen = () => {
-  const { userToken, openTokenOverlay, hasOverlay } = useAuthContext();
+  const { userToken, openTokenOverlay, hasOverlay, storeInfo } = useAuthContext();
+  const { showError } = useLayoutContext();
   const request = useApi();
   
   const GetTransactions = (params?: Record<string, any>) => request('get', '/transaction', { params });
@@ -56,7 +60,7 @@ const TransactionScreen = () => {
 
   const handleConfirmRefundClose = (data?: ConfirmRefundFormData) => {
     if(data){
-      const index = dataSource.findIndex(t => t.transaction_id == data.transaction_id);
+      const index = dataSource.findIndex(t => t._id == data.transactionInfo._id);
 
       if (index >= 0) {
         const transaction: TransactionItem = dataSource[index];
@@ -67,20 +71,33 @@ const TransactionScreen = () => {
 
         CreateRefundAsync(refundData).then((res) => {
           if(res.status){
+            showError('Refund successful!', '');
             GetTransactions({filters: { isBatched: false }}).then((res) => {
               if (res.status) {
                 setDataSource(res.result.data);
                 setBatchAmount(res.result.data.reduce((sum: number, item: TransactionItem) => sum += item.net_amount, 0))
               }
             })
+          } else if (res.message) {
+            showError('Refund failed', generateRefundErrorMessage(res.message));
           }
         });
       }
     }
   }
 
-  const handlePrint = (data: string) => {
-    DejavooPaymentModule.printReceipt(data);
+  const handlePrint = (data: string, record: TransactionItem) => {
+    if (!storeInfo) {
+      return;
+    }
+    if (record.type === 0) {
+      DejavooPaymentModule.printReceipt(data);
+    } else if (record.type === 1) {
+      const receiptText = generateRefundReceiptText(record, storeInfo);
+      DejavooPaymentModule.printReceipt(receiptText);
+    } else {
+
+    }
   }
 
   const [dataSource, setDataSource] = useState<TransactionItem[]>([]);
@@ -205,7 +222,7 @@ const TransactionScreen = () => {
     {
       title: 'Print',
       dataIndex: 'detail',
-      render: (val: Record<string, any>) => ( val?.merchant ? (<TouchableOpacity style={styles.button} onPress={() => handlePrint(val.merchant)}>
+      render: (val: Record<string, any>, record: TransactionItem) => ( val?.merchant ? (<TouchableOpacity style={styles.button} onPress={() => handlePrint(val.merchant, record)}>
       <Text style={styles.buttonText}>Print</Text>
     </TouchableOpacity>) : null )
     }

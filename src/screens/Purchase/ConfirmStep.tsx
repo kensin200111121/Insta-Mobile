@@ -21,26 +21,27 @@ const ConfirmationStep: React.FC<StepComponentProps> = ({onMoveStep, data}) => {
   const saveTransactionResult = (data: TransactionRequest) => request('post', '/transaction/create', data);
 
   const onConfirmTransaction = () => {
-    if (isSaving) {
-      return;
-    }
-    setIsSaving(true);
-    saveTransactionResult(data as TransactionRequest).then((res) => {
-      setIsSaving(false);
-      if (res.status) {
-        onMoveStep(true, data);
-        return;
-      } else {
-        alertDialogRef?.current?.open({
-          title: 'Warning',
-          content: `Saving transaction is failed because of this error ${res.message}. Try again.`
-        })
-      }
-    });
+    onMoveStep(true, data);
+    // if (isSaving) {
+    //   return;
+    // }
+    // setIsSaving(true);
+    // saveTransactionResult(data as TransactionRequest).then((res) => {
+    //   setIsSaving(false);
+    //   if (res.status) {
+        
+    //     return;
+    //   } else {
+    //     alertDialogRef?.current?.open({
+    //       title: 'Warning',
+    //       content: `Saving transaction is failed because of this error ${res.message}. Try again.`
+    //     })
+    //   }
+    // });
   }
 
   return (
-    <>
+    <View style={styles.container}>
       <View style={pageStyles.storeInfoBox}>
         <Text style={pageStyles.storeName}>{ storeName }</Text>
       </View>
@@ -63,7 +64,7 @@ const ConfirmationStep: React.FC<StepComponentProps> = ({onMoveStep, data}) => {
         { isSaving ? 'Processing...' : 'Pay Store with Credits'}
       </Button>
       <AlertDialog ref={alertDialogRef} onClose={() => {}} />
-    </>
+    </View>
   );
 };
 

@@ -61,22 +61,24 @@ const Startup = () => {
         <View style={styles.container}>
           <View style={styles.content}>
             <View style={styles.form}>
-              <TouchableOpacity onPress={() => updateUserToken('')}>
-                <Icon
-                  source='arrow-left'
-                  color='white'
-                  size={30}
+              <View style={styles.backContainer}>
+                <TouchableOpacity style={{ width: 30 }} onPress={() => updateUserToken('')}>
+                  <Icon
+                    source='arrow-left'
+                    color='white'
+                    size={30}
+                  />
+                </TouchableOpacity>
+                <TextInput
+                  placeholder="Phone Number"
+                  showSoftInputOnFocus={false}
+                  autoFocus={true}
+                  editable={false}
+                  value={maskInputString('___-___-____', text)}
+                  numberOfLines={1}
+                  style={{ height: 70, fontSize: 40, textAlign: 'center', color: 'white', letterSpacing: 2, flex: 1 }}
                 />
-              </TouchableOpacity>
-              <TextInput
-                placeholder="Phone Number"
-                showSoftInputOnFocus={false}
-                autoFocus={true}
-                editable={false}
-                value={maskInputString('___-___-____', text)}
-                numberOfLines={1}
-                style={{ height: 70, fontSize: 40, textAlign: 'center', color: 'white', letterSpacing: 2 }}
-              />
+              </View>
               <View style={styles.numberPadArea}>      
                 <NumericPad
                   ref={numpadRef}

@@ -4,11 +4,12 @@ import {  View, Text, StyleSheet, Touchable, TouchableOpacity } from "react-nati
 import InputRefundAmountDialog, { InputRefundAmountFormData } from './InputRefundAmountDialog';
 import { DialogMethod } from '../../components/WithDialog';
 import { getPriceNumber } from '../../helpers/numberHelper';
+import { TransactionItem } from '../../interface/transaction';
 
 export interface ConfirmRefundFormData{
   refundAmount: number;
   transactionAmount: number;
-  transaction_id: string;
+  transactionInfo: TransactionItem;
 }
 
 const ConfirmRefund: React.FC<DialogContentProps<ConfirmRefundFormData, ConfirmRefundFormData>> = ({ data, onClose, hide }) => {
@@ -42,7 +43,7 @@ const ConfirmRefund: React.FC<DialogContentProps<ConfirmRefundFormData, ConfirmR
       </View>
       <View style={styles.row}>
         <Text style={styles.highlight}>Transaction ID</Text>
-        <Text style={{flex: 1}}>{data.transaction_id}</Text>
+        <Text style={{flex: 1}}>{data.transactionInfo.transaction_id}</Text>
       </View>
       <Text style={styles.questions}>Issue Refund of {getPriceNumber(data.transactionAmount)}?</Text>
       <TouchableOpacity onPress={onInputOpen}>

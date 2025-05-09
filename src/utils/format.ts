@@ -9,6 +9,18 @@ export const formatUSNumber = (entry: string): string => {
     return `${part1}${part2}${part3}`;
 };
 
+export function formatInputNumber(number: string) {
+    if (!number) {
+        return '0'
+    }
+    const _inputNumber = parseFloat(number);
+    var _converted = _inputNumber.toLocaleString('en');
+    if (number[number.length - 1] === '.') {
+        return _converted + '.'
+    }
+    return _converted;
+}
+
 export function formatNumber(number: string) {
     if (!number) {
         return '0'
@@ -22,11 +34,11 @@ export function ceilTo2Decimals(number: number): number {
     return Math.ceil(number * 100) / 100;
 }
 
-export function formatDisplayNumber(number: string) {
+export function formatDisplayNumber(number: string, shouldCeil = true) {
     if (!number) {
         return '0.00'
     }
-    const _inputNumber = ceilTo2Decimals(parseFloat(number));
+    const _inputNumber = shouldCeil ? ceilTo2Decimals(parseFloat(number)) : parseFloat(number);
     const _converted = new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(_inputNumber ?? 0);
     return _converted;
 }

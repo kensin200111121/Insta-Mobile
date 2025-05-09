@@ -16,7 +16,7 @@ const ApprovedStep: React.FC<StepComponentProps> = ({ data }) => {
   };
 
   return (
-    <>
+    <View style={styles.container}>
       <Text style={styles.headerText}>Credits Applied!</Text>
       <Text style={pageStyles.subTitle}>Thank you for your purchase</Text>
       <View style={pageStyles.infoList}>
@@ -32,7 +32,7 @@ const ApprovedStep: React.FC<StepComponentProps> = ({ data }) => {
         </View>
       </View>
       <Button style={[styles.button, pageStyles.button]} labelStyle={[styles.buttonLabel, pageStyles.buttonLabel]} mode="contained" textColor="white" onPress={onComplete}>Done</Button>
-    </>
+    </View>
   );
 };
 

@@ -73,8 +73,8 @@ export interface TransactionItem {
     net_amount: number;
     isRefunded: boolean;
     card_number: string;
-    card_brand: number;
-    card_type: number;
+    card_brand: string;
+    card_type: string;
     response_code: string;
     tip: number;
     convenience_fee: number;
@@ -82,6 +82,7 @@ export interface TransactionItem {
     type: number;
     store?: StoreInfo;
     user?: UserInfo;
+    detail?: TransactionResponse
 };
 // {
 //     LTaxAmount: 0.00,
