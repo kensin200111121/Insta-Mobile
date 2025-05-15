@@ -1,10 +1,9 @@
 import React, { useImperativeHandle, useRef, useState } from 'react';
-import { StyleSheet, TouchableOpacity } from 'react-native';
-import { Button, Dialog, Portal, PaperProvider, Text, TextInput } from 'react-native-paper';
+import { TouchableOpacity } from 'react-native';
+import { Button, Dialog, Portal, TextInput } from 'react-native-paper';
 import NumericPad from 'react-native-numeric-pad';
 import { generateNumberPadProps } from '../../constants/numpad';
 import { NumpadRef } from '../../interface/numberpad';
-import { formatInputNumber } from '../../utils/format';
 import { SvgXml } from 'react-native-svg';
 import { closeIcon } from '../../../assets/svg/close';
 import styles from './style';
@@ -64,7 +63,7 @@ const CustomTipDialog = React.forwardRef<CustomTipDialogMethod, CustomTipDialogP
                             showSoftInputOnFocus={false}
                             autoFocus={true}
                             editable={false}
-                            value={'$' + formatInputNumber(amount)}
+                            value={'$' + amount}
                             numberOfLines={1}
                             style={{ height: 60, fontSize: 24, textAlign: 'center', marginHorizontal: 8, marginVertical: 15}}
                         />

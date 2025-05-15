@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react';
-import {View, StyleSheet, TouchableOpacity, TextInput, Alert} from 'react-native';
+import {View, StyleSheet, TouchableOpacity, TextInput} from 'react-native';
 import {Text, Button, Icon} from 'react-native-paper';
 import styles from './style';
 import {useLayoutContext} from '../../contexts/layout.context';
@@ -9,8 +9,6 @@ import NumericPad from 'react-native-numeric-pad';
 import { NumpadRef } from '../../interface/numberpad';
 import AlertDialog, { AlertDialogMethod } from '../../components/AlertDialog';
 import { generateNumberPadProps } from '../../constants/numpad';
-import { formatInputNumber } from '../../utils/format';
-import { useAuthContext } from '../../contexts/auth.context';
 
 const InputStep: React.FC<StepComponentProps> = ({onMoveStep}) => {
   const navigation = useNavigation();
@@ -26,13 +24,6 @@ const InputStep: React.FC<StepComponentProps> = ({onMoveStep}) => {
       alertDialogRef.current?.open({
         title: 'INVALID AMOUNT',
         content: `You didn't input the amount to purchase. Please input the valid amount.`
-      });
-      return;
-    }
-    if (parseFloat(amount + '') < 1) {
-      alertDialogRef.current?.open({
-        title: 'INVALID AMOUNT',
-        content: `You should input at least $1.00. Please input the valid amount bigger than 1.00.`
       });
       return;
     }
@@ -63,7 +54,7 @@ const InputStep: React.FC<StepComponentProps> = ({onMoveStep}) => {
                 autoFocus={true}
                 editable={false}
                 numberOfLines={1}
-                value={formatInputNumber(amount)}
+                value={amount}
               /> 
             </>          
             : <Text style={pageStyles.inputText}>$0</Text>
@@ -75,7 +66,9 @@ const InputStep: React.FC<StepComponentProps> = ({onMoveStep}) => {
         <NumericPad
           ref={numpadRef}
           numLength={8}
-          onValueChange={value => setAmount(value)}
+          onValueChange={value => {
+            setAmount(value);
+          }}
           allowDecimal={true}
           onRightBottomButtonPress={() => {numpadRef.current?.clear()}}
           {...generateNumberPadProps(210)}
